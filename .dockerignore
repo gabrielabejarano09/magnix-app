@@ -1,0 +1,28 @@
+﻿# Maven
+target/
+!target/*.jar
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Tests
+.mvn/
+
+# Otros
+README.md
+compose.yaml
