@@ -1,0 +1,34 @@
+name: CI Build & Test
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Configurar Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Validación de dependencias
+        run: mvn -B dependency:go-offline
+
+      - name: Compilar
+        run: mvn -B clean compile
+
+      - name: Ejecutar tests
+        run: mvn -B test
+
+      - name: Empaquetar (opcional)
+        if: success()
+        run: mvn -B package
