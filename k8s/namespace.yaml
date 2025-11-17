@@ -1,0 +1,8 @@
+﻿# Namespace para aislar la aplicación Magnix
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: magnix-app
+  labels:
+    app: magnix
+    environment: production

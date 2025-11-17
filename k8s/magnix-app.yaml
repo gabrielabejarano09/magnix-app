@@ -1,0 +1,129 @@
+﻿# Deployment de Magnix App para Kubernetes
+# Este archivo define cómo se despliega la aplicación Spring Boot
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: magnix-app
+  namespace: magnix-app
+  labels:
+    app: magnix-app
+    version: v1
+spec:
+  replicas: 2  # 2 réplicas para alta disponibilidad
+  
+  # Estrategia de actualización sin downtime
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  
+  selector:
+    matchLabels:
+      app: magnix-app
+  
+  template:
+    metadata:
+      labels:
+        app: magnix-app
+        version: v1
+    spec:
+      containers:
+      - name: magnix-app
+        image: ghcr.io/nicoclo205/magnix-app:latest
+        imagePullPolicy: Always
+        
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        
+        # Variables de entorno para conectar con MySQL
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql:3306/mydatabase"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "myuser"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "secret"
+        - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+          value: "update"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "production"
+        
+        # Liveness probe: ¿La app está viva?
+        livenessProbe:
+          httpGet:
+            path: /magnix/actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 90
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        
+        # Readiness probe: ¿La app está lista para recibir tráfico?
+        readinessProbe:
+          httpGet:
+            path: /magnix/actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        
+        # Recursos asignados (importante para escalabilidad)
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+
+---
+# Service para exponer la aplicación
+apiVersion: v1
+kind: Service
+metadata:
+  name: magnix-app
+  namespace: magnix-app
+  labels:
+    app: magnix-app
+spec:
+  type: LoadBalancer  # Expone la app externamente
+  selector:
+    app: magnix-app
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+
+---
+# HorizontalPodAutoscaler: Auto-escalado basado en CPU/Memoria
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: magnix-app-hpa
+  namespace: magnix-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: magnix-app
+  minReplicas: 2   # Mínimo 2 réplicas
+  maxReplicas: 10  # Máximo 10 réplicas
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70  # Escala cuando CPU > 70%
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80  # Escala cuando memoria > 80%
