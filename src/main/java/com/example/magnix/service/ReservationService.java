@@ -13,12 +13,9 @@ import java.util.List;
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
-    private final SpaceRepository spaceRepository;
-
     public ReservationService(ReservationRepository reservationRepository,
                               SpaceRepository spaceRepository) {
         this.reservationRepository = reservationRepository;
-        this.spaceRepository = spaceRepository;
     }
 
     public Reservation createReservation(Long playerId,
