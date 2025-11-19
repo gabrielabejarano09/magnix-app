@@ -7,7 +7,7 @@ import com.example.magnix.service.ReservationService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/reservations")
+@RequestMapping("/api/reservations")
 public class ReservationController {
 
     private final ReservationService service;

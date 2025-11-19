@@ -3,14 +3,15 @@ package com.example.magnix.dto;
 public class LoginResponse {
     private String email;
     private String role;
+    private String token; // ← AGREGAR CAMPO TOKEN
 
-    public LoginResponse(String email, String role) {
+    public LoginResponse(String email, String role, String token) {
         this.email = email;
         this.role = role;
+        this.token = token;
     }
 
-    // Getters
-
+    // Getters y Setters
     public String getEmail() {
         return email;
     }
@@ -25,5 +26,13 @@ public class LoginResponse {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }
