@@ -11,49 +11,50 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  # ============================================
-  # JOB 1: BUILD Y TEST
-  # ============================================
+# ============================================
+# JOB 1: BUILD Y TEST (CORREGIDO)
+# ============================================
   build-and-test:
-    name: Build & Test
-    runs-on: ubuntu-latest
-    
-    permissions:
-      contents: read
-      packages: write
-      security-events: write
+      name: Build & Test
+      runs-on: ubuntu-latest
 
-    steps:
-    - name: 📥 Checkout código
-      uses: actions/checkout@v4
+      permissions:
+        contents: read
+        packages: write
+        security-events: write
 
-    - name: ☕ Configurar JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: 'maven'
+      steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
 
-    - name: 🔍 Verificar dependencias
-      run: mvn dependency:tree
+      - name: ☕ Configurar JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
 
-    - name: 🏗️ Compilar código
-      run: mvn clean compile
+      - name: 🔍 Verificar dependencias
+        run: mvn dependency:tree
 
-    - name: 📦 Empaquetar
-      run: mvn package -Dmaven.test.skip=true
+      - name: 🏗️ Compilar código
+        run: mvn clean compile
 
-    - name: 📊 Generar reporte de compilación
-      run: |
-        echo "Build exitoso en $(date)" > build-report.txt
-        ls -lh target/*.war >> build-report.txt
+      - name: 📦 Empaquetar (JAR)
+        run: mvn package -Dmaven.test.skip=true
 
-    - name: 💾 Subir WAR como artefacto
-      uses: actions/upload-artifact@v4
-      with:
-        name: magnix-war-${{ github.sha }}
-        path: target/*.war
-        retention-days: 30
+      - name: 📊 Generar reporte de compilación
+        run: |
+          echo "Build exitoso en $(date)" > build-report.txt
+          ls -lh target/*.jar >> build-report.txt
+
+      - name: 💾 Subir JAR como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: magnix-jar-${{ github.sha }}
+          path: target/*.jar
+          retention-days: 30
+
 
   # ============================================
   # JOB 2: SECURITY SCANS
