@@ -2,10 +2,14 @@ package com.example.magnix.controller;
 
 import com.example.magnix.dto.LoginRequest;
 import com.example.magnix.dto.LoginResponse;
+import com.example.magnix.dto.RegisterRequest;
 import com.example.magnix.model.User;
 import com.example.magnix.security.JwtUtil;
 import com.example.magnix.service.AuthenticationService;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -28,4 +32,10 @@ public class AuthenticationController {
 
         return new LoginResponse(user.getEmail(), user.getRole(), token);
     }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+    String token = authService.register(request);
+    return ResponseEntity.ok(token);
+}
 }
