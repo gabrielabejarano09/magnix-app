@@ -31,26 +31,31 @@ class ReservationServiceTest {
     @InjectMocks
     private ReservationService reservationService;
 
-    @Test
-    @DisplayName("Debería crear una reserva si el horario está disponible")
-    void createReservation_shouldSucceed_whenSlotIsAvailable() {
-        // Arrange
-        long playerId = 1L;
-        long spaceId = 10L; 
-        LocalDateTime startTime = LocalDateTime.now().plusDays(1).withHour(15).withMinute(0);
+  @Test
+@DisplayName("Debería crear una reserva si el horario está disponible")
+void createReservation_shouldSucceed_whenSlotIsAvailable() {
+    // Arrange
+    long playerId = 1L;
+    long spaceId = 10L; 
+    LocalDateTime startTime = LocalDateTime.now().plusDays(1).withHour(15).withMinute(0);
+    LocalDateTime endTime = startTime.plusHours(1);  // 👈 AGREGAR ESTO
 
-        
-        when(reservationRepository.findConflictingReservations(spaceId, startTime, startTime.plusHours(1)))
-            .thenReturn(Collections.emptyList());
+    // Mock: No hay conflictos
+    when(reservationRepository.findConflictingReservations(spaceId, startTime, endTime))
+        .thenReturn(Collections.emptyList());
 
-        // Act
-        Reservation newReservation = reservationService.createReservation(playerId, spaceId, startTime);
+    // 👇 AGREGAR ESTO - Mock de save()
+    when(reservationRepository.save(any(Reservation.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Assert
-        assertNotNull(newReservation);
-        assertEquals(playerId, newReservation.getPlayerId());
-        verify(reservationRepository).save(any(Reservation.class));
-    }
+    // Act
+    Reservation newReservation = reservationService.createReservation(playerId, spaceId, startTime);
+
+    // Assert
+    assertNotNull(newReservation);
+    assertEquals(playerId, newReservation.getPlayerId());
+    verify(reservationRepository).save(any(Reservation.class));
+}
     
     @Test
     @DisplayName("Debería lanzar una excepción si el horario ya está ocupado")

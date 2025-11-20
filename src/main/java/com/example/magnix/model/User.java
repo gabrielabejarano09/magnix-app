@@ -15,6 +15,9 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+    
+    @Column(nullable = false)
+    private String nombre;
 
     @Column(nullable = false)
     private String role;
@@ -23,16 +26,29 @@ public class User {
     public User() {
     }
 
-    // Constructor usado en los tests
+    // Constructor completo
+    public User(String email, String password, String nombre, String role) {
+        this.email = email;
+        this.password = password;
+        this.nombre = nombre;
+        this.role = role;
+    }
+    
+    // Constructor sin nombre (para compatibilidad con código existente)
     public User(String email, String password, String role) {
         this.email = email;
         this.password = password;
+        this.nombre = email.split("@")[0]; // Usar parte del email como nombre por defecto
         this.role = role;
     }
 
     // Getters y Setters
     public Long getId() {
         return id;
+    }
+    
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEmail() {
@@ -49,6 +65,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+    
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public String getRole() {

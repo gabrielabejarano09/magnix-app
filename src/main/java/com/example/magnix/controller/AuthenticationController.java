@@ -2,6 +2,7 @@ package com.example.magnix.controller;
 
 import com.example.magnix.dto.LoginRequest;
 import com.example.magnix.dto.LoginResponse;
+import com.example.magnix.dto.LoginResponse.UserDto;
 import com.example.magnix.dto.RegisterRequest;
 import com.example.magnix.model.User;
 import com.example.magnix.security.JwtUtil;
@@ -30,12 +31,34 @@ public class AuthenticationController {
         // Generar JWT token
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
 
-        return new LoginResponse(user.getEmail(), user.getRole(), token);
+        // Crear el objeto UserDto con la información del usuario
+        UserDto userDto = new UserDto(
+            user.getId(),
+            user.getEmail(),
+            user.getNombre(),
+            user.getRole()
+        );
+
+        // Retornar la respuesta con el formato esperado por el frontend
+        return new LoginResponse(userDto, token);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-    String token = authService.register(request);
-    return ResponseEntity.ok(token);
-}
+    public ResponseEntity<LoginResponse> register(@RequestBody RegisterRequest request) {
+        User user = authService.register(request);
+        
+        // Generar JWT token
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
+        
+        // Crear el objeto UserDto
+        UserDto userDto = new UserDto(
+            user.getId(),
+            user.getEmail(),
+            user.getNombre(),
+            user.getRole()
+        );
+        
+        // Retornar la respuesta con el formato esperado por el frontend
+        return ResponseEntity.ok(new LoginResponse(userDto, token));
+    }
 }

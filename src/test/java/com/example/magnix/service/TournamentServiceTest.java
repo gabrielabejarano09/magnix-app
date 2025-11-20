@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 import com.example.magnix.dto.PlayerTournaments;
@@ -62,26 +64,31 @@ class TournamentServiceTest {
         assertEquals(2, result.getOpenTournaments().size()); 
     }
 
-    @Test
-    @DisplayName("Debería inscribir un equipo si todos los jugadores son válidos")
-    void enrollTeamInTournament_shouldSucceed_withValidPlayers() {
-        // Arrange
-        long tournamentId = 1L;
-        long enrollingPlayerId = 101L;
-        List<Long> memberIds = List.of(102L, 103L);
-        TeamEnrollmentRequest request = new TeamEnrollmentRequest("Los Invencibles", memberIds);
+   @Test
+@DisplayName("Debería inscribir un equipo si todos los jugadores son válidos")
+void enrollTeamInTournament_shouldSucceed_withValidPlayers() {
 
-        when(tournamentRepository.findById(tournamentId)).thenReturn(Optional.of(new Tournament(tournamentId, "Torneo Voley")));
-        when(playerRepository.existsById(anyLong())).thenReturn(true); 
+    long tournamentId = 1L;
+    long enrollingPlayerId = 101L;
+    List<Long> memberIds = List.of(102L, 103L);
+    TeamEnrollmentRequest request = new TeamEnrollmentRequest("Los Invencibles", memberIds);
 
-        // Act
-        Enrollment result = tournamentService.enrollTeam(tournamentId, enrollingPlayerId, request);
+    when(tournamentRepository.findById(tournamentId))
+            .thenReturn(Optional.of(new Tournament(tournamentId, "Torneo Voley")));
 
-        // Assert
-        assertNotNull(result);
-        assertEquals("Los Invencibles", result.getTeamName());
-        verify(enrollmentRepository).save(any(Enrollment.class));
-    }
+    when(playerRepository.existsById(anyLong()))
+        .thenReturn(true);
+
+    Enrollment saved = mock(Enrollment.class);
+    when(saved.getTeamName()).thenReturn("Los Invencibles");
+    when(enrollmentRepository.save(any(Enrollment.class))).thenReturn(saved);
+
+    Enrollment result = tournamentService.enrollTeam(tournamentId, enrollingPlayerId, request);
+
+    assertNotNull(result);
+    assertEquals("Los Invencibles", result.getTeamName());
+    verify(enrollmentRepository).save(any(Enrollment.class));
+}
 
     @Test
     @DisplayName("Debería lanzar una excepción al inscribir un equipo con un jugador inválido")

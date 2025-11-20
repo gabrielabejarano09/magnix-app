@@ -14,8 +14,6 @@ public class AuthenticationService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
-
     public AuthenticationService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
@@ -23,10 +21,9 @@ public class AuthenticationService {
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
     }
 
-    public String register(RegisterRequest request) {
+    public User register(RegisterRequest request) {
 
         // validar si ya existe
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -37,12 +34,10 @@ public class AuthenticationService {
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword())); // HASH!!!
-        user.setRole("PLAYER");
+        user.setNombre(request.getNombre() != null ? request.getNombre() : request.getEmail().split("@")[0]);
+        user.setRole("ADMIN");
 
-        userRepository.save(user);
-
-        // generar token con JwtUtil
-        return jwtUtil.generateToken(user.getEmail(), user.getRole());
+        return userRepository.save(user);
     }
 
     public User login(String email, String password) {
@@ -55,4 +50,4 @@ public class AuthenticationService {
 
         return user;
     }
-}
+} 
