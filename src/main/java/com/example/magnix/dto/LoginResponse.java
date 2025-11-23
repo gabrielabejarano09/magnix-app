@@ -39,6 +39,13 @@ public class LoginResponse {
         public UserDto() {
         }
 
+    //clase constructor para login sin nombre
+        public UserDto(Long id, String email, String rol) {
+            this.id = String.valueOf(id);
+            this.email = email;
+            this.rol = rol;
+        }
+
         public UserDto(Long id, String email, String nombre, String rol) {
             this.id = String.valueOf(id);
             this.email = email;

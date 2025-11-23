@@ -35,7 +35,6 @@ public class AuthenticationController {
         UserDto userDto = new UserDto(
             user.getId(),
             user.getEmail(),
-            user.getNombre(),
             user.getRole()
         );
 
